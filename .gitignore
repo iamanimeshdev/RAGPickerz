@@ -1,0 +1,38 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Ignore editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Byte-compiled / log / temp files
+*.log
+*.tmp
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Pytest cache
+.pytest_cache/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Pydantic schema cache
+*.json
+
+# Ignore secrets (if any)
+.env
+*.env
