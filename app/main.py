@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.routes import hackrx
+from app.routers.hackrx import router as hackrx_router
 
 app = FastAPI()
-app.include_router(hackrx.router)
+
+app.include_router(hackrx_router)
