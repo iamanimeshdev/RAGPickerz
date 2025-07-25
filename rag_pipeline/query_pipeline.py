@@ -1,61 +1,46 @@
-"""Query Pipeline Module
-
-Returns:
-    ClaimResponse: The response containing the decision,
-                    amount, and justification.
-"""
-
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
-from langchain_core.output_parsers import JsonOutputParser
-
 from rag_pipeline.llm_engine import get_gemini_llm
 from rag_pipeline.retriever import retrieve_documents
-from rag_pipeline.schemas import ClaimResponse
 
-
-TEMPLATE = """You are a claims processing assistant.
+TEMPLATE = """You are a helpful insurance policy assistant.
 
 Here are relevant policy clauses:
 {context}
 
-User Query:
+User Question:
 {question}
 
 Instructions:
-- You must respond with only a valid JSON object.
-- Do not include any explanations outside the JSON.
-- Follow this format exactly:
-{{
-    "decision": "approved or rejected",
-    "amount": number (0 if rejected),
-    "justification": [{{ "clause_id": int, "text": str }}]
-}}
+- Answer the question in clear, concise natural language.
+- Be factual, citing specifics from the context if available.
+-Respond with atleast one Line.
+- If the context does not contain enough information, respond with:
+  "This information is not available in the provided text."
+- Include any explanations outside the answer on if necessary and provided.
+- Return ONLY the answer as plain text — no bullet points, no JSON, no labels.
 """
 
-
-def run_query_pipeline(query: str) -> ClaimResponse:
-    """Run the query pipeline to process the user's query.
-
-    Args:
-        query (str): The user's query regarding the claim.
-
-    Returns:
-        ClaimResponse: The response containing the decision,
-                        amount, and justification.
-    """
-    documents = retrieve_documents(query)
-    context = "\n".join(
-        f"[{i+1}] {doc.page_content}" for i, doc in enumerate(documents)
-    )
+def run_query_pipeline(question: str) -> str:
+    documents = retrieve_documents(question)
+    context = "\n".join(f"[{i+1}] {doc.page_content}" for i, doc in enumerate(documents))
 
     prompt = PromptTemplate.from_template(TEMPLATE)
     llm = get_gemini_llm()
-    output_parser = JsonOutputParser()
 
-    prepare_inputs = RunnableLambda(lambda _: {"context": context, "question": query})
+    prepare_inputs = RunnableLambda(lambda _: {"context": context, "question": question})
+    chain = prepare_inputs | prompt | llm
 
-    chain = prepare_inputs | prompt | llm | output_parser
+    response=chain.invoke({})
+    return response.content if hasattr(response, 'content') else response
 
-    parsed_output = chain.invoke({})
-    return ClaimResponse(**parsed_output)
+def run_batch_query_pipeline(questions: list[str]) -> list[str]:
+    """Processes multiple questions one by one using the query pipeline.
+
+    Args:
+        questions (list[str]): List of user questions.
+
+    Returns:
+        list[str]: List of natural language answers in order.
+    """
+    return [run_query_pipeline(q) for q in questions]
