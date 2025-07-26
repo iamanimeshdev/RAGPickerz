@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+_llm=ChatGoogleGenerativeAI(
+        model="gemma-3n-e2b-it",
+        temperature=0.2,
+    )
 
 def get_gemini_llm() -> ChatGoogleGenerativeAI:
     """Get an instance of the Google Gemini LLM.
@@ -17,7 +21,4 @@ def get_gemini_llm() -> ChatGoogleGenerativeAI:
         ChatGoogleGenerativeAI: An instance of the Google Gemini LLM with
                                 specified parameters.
     """
-    return ChatGoogleGenerativeAI(
-        model="gemma-3n-e2b-it",
-        temperature=0.2,
-    )
+    return _llm
