@@ -18,6 +18,6 @@ def get_gemini_llm() -> ChatGoogleGenerativeAI:
                                 specified parameters.
     """
     return ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemma-3n-e2b-it",
         temperature=0.2,
     )
