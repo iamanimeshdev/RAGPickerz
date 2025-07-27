@@ -22,9 +22,9 @@ Instructions:
 """
 
 def run_query_pipeline(question: str) -> str:
-    start = time.time()
+    start = time.perf_counter()
     documents = retrieve_documents(question)
-    print(f"🔍 Retrieval time: {time.time() - start:.2f}s")
+    print(f"🔍 Retrieval time: {time.perf_counter() - start:.2f}s")
 
     context = "\n".join(f"[{i+1}] {doc.page_content}" for i, doc in enumerate(documents))
 
@@ -34,9 +34,9 @@ def run_query_pipeline(question: str) -> str:
     prepare_inputs = RunnableLambda(lambda _: {"context": context, "question": question})
     chain = prepare_inputs | prompt | llm
 
-    start = time.time()
+    start = time.perf_counter()
     response=chain.invoke({})
-    print(f"🤖 LLM generation time: {time.time() - start:.2f}s")
+    print(f"🤖 LLM generation time: {time.perf_counter() - start:.2f}s")
     return response.content if hasattr(response, 'content') else response
 
 def run_batch_query_pipeline(questions: list[str]) -> list[str]:

@@ -40,16 +40,16 @@ def build_vector_store(documents: list[Document]) -> FAISS:
         print("✅ Vector store already exists. Loading from disk.")
         return FAISS.load_local(VECTOR_DB_PATH, embeddings, allow_dangerous_deserialization=True)
     
-    start_split = time.time()
+    start_split = time.perf_counter()
     chunks = splitter.split_documents(documents)
-    print(f"🧩 Split into {len(chunks)} chunks in {time.time() - start_split:.2f}s")
+    print(f"🧩 Split into {len(chunks)} chunks in {time.perf_counter() - start_split:.2f}s")
 
-    start_embed = time.time()
+    start_embed = time.perf_counter()
     vector_store = FAISS.from_documents(chunks, embeddings)
-    print(f"📦 Embedded & indexed in {time.time() - start_embed:.2f}s")
+    print(f"📦 Embedded & indexed in {time.perf_counter() - start_embed:.2f}s")
 
-    start_save = time.time()
+    start_save = time.perf_counter()
     vector_store.save_local(os.path.join(VECTOR_DB_PATH))
-    print(f"📦 saving in db in {time.time() - start_save:.2f}s")
+    print(f"📦 saving in db in {time.perf_counter() - start_save:.2f}s")
 
     return vector_store

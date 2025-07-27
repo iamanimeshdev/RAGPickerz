@@ -49,7 +49,7 @@ def retrieve_documents(query: str, top_k: int = 5) -> List[Document]:
         List[Docuemnt]: A list of documents retrieved from the vector store.
     """
     store = load_vector_store()
-    start = time.time()
+    start = time.perf_counter()
     result= store.similarity_search(query, k=top_k)
-    print(f"🔍 Document retrieval time: {time.time() - start:.2f}s")
+    print(f"🔍 Document retrieval time: {time.perf_counter() - start:.2f}s")
     return result

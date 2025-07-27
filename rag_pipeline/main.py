@@ -1,30 +1,30 @@
+import time
+start = time.perf_counter()
 from rag_pipeline.document_loader import load_documents
 from rag_pipeline.embedder import build_vector_store
 from rag_pipeline.query_pipeline import run_batch_query_pipeline
-import time
 
 
 def main():
     """Main function to execute the RAG pipeline."""
-    start = time.time()
-    docs = load_documents([r"rag_pipeline\docs\BAJHLIP23020V012223.pdf"])
+    docs = load_documents([r"rag_pipeline\docs\policy.pdf"])
     build_vector_store(docs)
 
     questions = [
-    "What is the definition of an Accident under this policy?",
-    "What does the policy define as a Pre-Existing Disease?",
-    "What are the conditions for coverage of Mental Illness Treatment?",
-    "What expenses are covered under In-patient Hospitalization Treatment within India?",
-    "What are the criteria for an AYUSH Hospital to be covered under the policy?",
-    "What does the policy state about the Grace Period for premium payment?",
-    "What is covered under Living Donor Medical Costs?",
-    "How does the policy define Emergency Treatment outside area of cover?",
-    "What benefits are included under Out-patient Treatment in the Imperial Plus Plan?",
-    "What are the exclusions for Mental Illness Treatment according to the policy?"
+        "What is the grace period for premium payment under the National Parivar Mediclaim Plus Policy?",
+        "What is the waiting period for pre-existing diseases (PED) to be covered?",
+        "Does this policy cover maternity expenses, and what are the conditions?",
+        "What is the waiting period for cataract surgery?",
+        "Are the medical expenses for an organ donor covered under this policy?",
+        "What is the No Claim Discount (NCD) offered in this policy?",
+        "Is there a benefit for preventive health check-ups?",
+        "How does the policy define a 'Hospital'?",
+        "What is the extent of coverage for AYUSH treatments?",
+        "Are there any sub-limits on room rent and ICU charges for Plan A?"
   ]
 
     answers = run_batch_query_pipeline(questions)
-    end = time.time()
+    end = time.perf_counter()
 
     print({"answers": answers})
     print(f"⏱️ Total time: {end - start:.2f}s")
