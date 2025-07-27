@@ -23,6 +23,9 @@ VECTOR_DB_PATH = os.path.relpath(str(os.getenv("VECTOR_DB_PATH")))
 embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
+splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    )
 
 def build_vector_store(documents: list[Document]) -> FAISS:
     """Builds a vector store from the provided documents.
@@ -33,9 +36,10 @@ def build_vector_store(documents: list[Document]) -> FAISS:
     Returns:
         FAISS: The FAISS vector store containing the document embeddings.
     """
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
-    )
+    if os.path.exists(os.path.join(VECTOR_DB_PATH, "index.faiss")):
+        print("✅ Vector store already exists. Loading from disk.")
+        return FAISS.load_local(VECTOR_DB_PATH, embeddings, allow_dangerous_deserialization=True)
+    
     start_split = time.time()
     chunks = splitter.split_documents(documents)
     print(f"🧩 Split into {len(chunks)} chunks in {time.time() - start_split:.2f}s")
