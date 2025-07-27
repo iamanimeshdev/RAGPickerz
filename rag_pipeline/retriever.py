@@ -5,21 +5,12 @@ Raises:
 """
 
 from typing import List
-import os
+import time
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.docstore.document import Document
-import time
+from rag_pipeline.config import VECTOR_DB_PATH, embeddings
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-VECTOR_DB_PATH = os.getenv("VECTOR_DB_PATH")
-
-embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
 
 def load_vector_store() -> FAISS:
     """Loads the FAISS vector store from the specified path.
@@ -30,7 +21,7 @@ def load_vector_store() -> FAISS:
     Returns:
         FAISS: The FAISS vector store loaded from the specified path.
     """
-   
+
     if not VECTOR_DB_PATH:
         raise ValueError("VECTOR_DB_PATH environment variable is not set.")
     return FAISS.load_local(

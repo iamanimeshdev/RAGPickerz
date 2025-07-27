@@ -1,13 +1,26 @@
 import time
+import threading
+
 start = time.perf_counter()
+
 from rag_pipeline.document_loader import load_documents
 from rag_pipeline.embedder import build_vector_store
 from rag_pipeline.query_pipeline import run_batch_query_pipeline
 
+def preload_config():
+    global config
+    import rag_pipeline.config  # expensive
+    config = rag_pipeline.config
+    config.embeddings.embed_query("warmup")
 
 def main():
-    """Main function to execute the RAG pipeline."""
-    docs = load_documents([r"rag_pipeline\docs\policy.pdf"])
+    preload_thread = threading.Thread(target=preload_config)
+    preload_thread.start()
+
+    docs = load_documents([r"rag_pipeline/docs/policy.pdf"])
+
+    preload_thread.join() 
+
     build_vector_store(docs)
 
     questions = [
@@ -21,7 +34,7 @@ def main():
         "How does the policy define a 'Hospital'?",
         "What is the extent of coverage for AYUSH treatments?",
         "Are there any sub-limits on room rent and ICU charges for Plan A?"
-  ]
+    ]
 
     answers = run_batch_query_pipeline(questions)
     end = time.perf_counter()

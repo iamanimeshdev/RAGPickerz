@@ -5,27 +5,11 @@ Returns:
 """
 
 import os
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+import time
 from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-import time
+from rag_pipeline.config import VECTOR_DB_PATH, embeddings, splitter
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))
-CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
-VECTOR_DB_PATH = os.path.relpath(str(os.getenv("VECTOR_DB_PATH")))
-
-
-embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
-    )
 
 def build_vector_store(documents: list[Document]) -> FAISS:
     """Builds a vector store from the provided documents.
