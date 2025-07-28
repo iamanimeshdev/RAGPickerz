@@ -1,6 +1,6 @@
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
-from rag_pipeline.llm_engine import get_gemini_llm
+from rag_pipeline.config import LLM
 from rag_pipeline.retriever import retrieve_documents
 from concurrent.futures import ThreadPoolExecutor
 import time
@@ -29,7 +29,7 @@ def run_query_pipeline(question: str) -> str:
     context = "\n".join(f"[{i+1}] {doc.page_content}" for i, doc in enumerate(documents))
 
     prompt = PromptTemplate.from_template(TEMPLATE)
-    llm = get_gemini_llm()
+    llm = LLM
 
     prepare_inputs = RunnableLambda(lambda _: {"context": context, "question": question})
     chain = prepare_inputs | prompt | llm

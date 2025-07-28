@@ -25,6 +25,7 @@ def load_documents(file_paths: List[str]) -> List[Document]:
     Returns:
         List[Document]: A list of loaded documents.
     """
+    print(f"📂 Loading documents from {len(file_paths)} files...")
     docs = []
     for path in file_paths:
         if path.endswith(".pdf"):
