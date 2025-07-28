@@ -1,7 +1,7 @@
 import time
 import threading
 
-start = time.perf_counter()
+
 
 from rag_pipeline.document_loader import load_documents
 from rag_pipeline.embedder import build_vector_store
@@ -16,6 +16,8 @@ def preload_config():
 def main():
     preload_thread = threading.Thread(target=preload_config)
     preload_thread.start()
+
+    start = time.perf_counter()
 
     docs = load_documents([r"rag_pipeline/docs/policy.pdf"])
 

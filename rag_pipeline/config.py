@@ -2,7 +2,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 VECTOR_DB_PATH=r".\faiss_index"
-CHUNK_SIZE=300
+CHUNK_SIZE=350
 CHUNK_OVERLAP=50
 
 print("started loading config")
