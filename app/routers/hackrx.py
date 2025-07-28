@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel, HttpUrl
-from typing import List
+from typing import List, Dict
 import tempfile
 import requests
 import os
 
-from langchain.docstore.document import Document
 from langchain_community.document_loaders import PyMuPDFLoader
 
 from rag_pipeline.embedder import build_vector_store
@@ -17,16 +16,25 @@ router = APIRouter(
 )
 
 class RunRequest(BaseModel):
-    documents: List[HttpUrl]
+    documents: HttpUrl
     questions: List[str]
 
-@router.post("/run", response_model=List[str])
+API_KEY = "4cddf75ac147708172d676dce84c367b3e9f55654166b361e654df27aa26f424"
+
+def verify_token(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token = authorization.split(" ")[1]
+    if token != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+
+@router.post("/run", response_model=Dict[str,List[str]], dependencies=[Depends((verify_token))])
 async def run_qa(request: RunRequest):
     try:
         all_docs = []
-
+        urls =  [request.documents]
         # Step 1: Download each PDF and load using PyMuPDFLoader
-        for url in request.documents:
+        for url in urls:
             response = requests.get(str(url))
             response.raise_for_status()
 
@@ -48,7 +56,7 @@ async def run_qa(request: RunRequest):
 
         # Step 3: Run queries
         answers = run_batch_query_pipeline(request.questions)
-        return answers
+        return {"answers": answers}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
