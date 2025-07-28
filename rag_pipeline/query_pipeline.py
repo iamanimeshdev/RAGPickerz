@@ -2,7 +2,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
 from rag_pipeline.config import LLM
 from rag_pipeline.retriever import retrieve_documents
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
 TEMPLATE = """You are a helpful insurance policy assistant.
@@ -40,14 +40,24 @@ def run_query_pipeline(question: str) -> str:
     return response.content if hasattr(response, 'content') else response
 
 def run_batch_query_pipeline(questions: list[str]) -> list[str]:
-    """Processes multiple questions one by one using the query pipeline.
-
-    Args:
-        questions (list[str]): List of user questions.
-
-    Returns:
-        list[str]: List of natural language answers in order.
     """
+    Processes multiple questions concurrently using the query pipeline.
+    Returns partial results even if some fail (e.g. due to rate limits).
+    """
+    results = [None] * len(questions)  # Pre-fill with None
+    futures = {}
+
     with ThreadPoolExecutor() as executor:
-        results = list(executor.map(run_query_pipeline, questions))
+        for idx, question in enumerate(questions):
+            futures[executor.submit(run_query_pipeline, question)] = idx
+
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                result = future.result()
+                results[idx] = result
+            except Exception as e:
+                results[idx] = f"[Error] Could not process question {idx+1}: Rate limit exceeded"
+    
     return results
+

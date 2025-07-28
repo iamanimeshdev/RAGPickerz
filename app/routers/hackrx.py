@@ -11,7 +11,7 @@ from rag_pipeline.embedder import build_vector_store
 from rag_pipeline.query_pipeline import run_batch_query_pipeline
 
 router = APIRouter(
-    prefix="/hackrx",
+    prefix="/api/v1/hackrx",
     tags=["HackRx"]
 )
 

@@ -30,17 +30,17 @@ def build_vector_store(documents: list[Document]) -> FAISS:
     chunks = splitter.split_documents(documents)
     print(f"🧩 Split into {len(chunks)} chunks in {time.perf_counter() - start_split:.2f}s")
 
+    start_chunk = time.perf_counter()
     new_chunks = []
     for chunk in chunks:
         h = compute_hash(chunk.page_content)
         if h not in existing_hashes:
             chunk.metadata["hash"] = h
             new_chunks.append(chunk)
-        else:
-            print(f"⏩ Skipping duplicate chunk (hash={h[:8]})")
+        
+    print(f"🔍 Found {len(new_chunks)} new chunks to embed in {time.perf_counter() - start_chunk:.2f}s")
 
     if not new_chunks:
-        print("📂 No new chunks to embed. Returning existing store.")
         return vector_store
 
     start_embed = time.perf_counter()
