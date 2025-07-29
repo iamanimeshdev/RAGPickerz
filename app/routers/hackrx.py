@@ -5,8 +5,7 @@ import tempfile
 import requests
 import os
 
-from langchain_community.document_loaders import PyMuPDFLoader
-
+from rag_pipeline.document_loader import load_documents
 from rag_pipeline.embedder import build_vector_store
 from rag_pipeline.query_pipeline import run_batch_query_pipeline
 
@@ -41,12 +40,10 @@ async def run_qa(request: RunRequest):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 tmp.write(response.content)
                 tmp_path = tmp.name
+            
+            all_docs = load_documents([tmp_path])
 
-            loader = PyMuPDFLoader(tmp_path)
-            docs = loader.load()
-            all_docs.extend(docs)
-
-            os.remove(tmp_path)  # Clean up temp file
+            os.remove(tmp_path)  
 
         if not all_docs:
             raise HTTPException(status_code=400, detail="No readable content found in PDFs.")

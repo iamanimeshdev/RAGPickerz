@@ -23,7 +23,7 @@ def build_vector_store(documents: list[Document]) -> FAISS:
     if os.path.exists(os.path.join(VECTOR_DB_PATH, "index.faiss")):
         print("✅ Vector store already exists. Loading from disk.")
         vector_store = FAISS.load_local(VECTOR_DB_PATH, embeddings, allow_dangerous_deserialization=True)
-        all_docs = vector_store.similarity_search("warmup", k=1000)
+        all_docs = vector_store.similarity_search("warmup", k=10000)
         existing_hashes = {doc.metadata.get("hash") for doc in all_docs if "hash" in doc.metadata}
 
     start_split = time.perf_counter()
