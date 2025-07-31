@@ -44,7 +44,7 @@ def run_batch_query_pipeline(questions: list[str]) -> list[str]:
     Processes multiple questions concurrently using the query pipeline.
     Returns partial results even if some fail (e.g. due to rate limits).
     """
-    results = [None] * len(questions)  # Pre-fill with None
+    results = [""] * len(questions)
     futures = {}
 
     with ThreadPoolExecutor() as executor:

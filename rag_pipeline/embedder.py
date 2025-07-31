@@ -7,6 +7,7 @@ Returns:
 import os
 import time
 import hashlib
+from typing import List
 from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 from rag_pipeline.config import VECTOR_DB_PATH, embeddings, splitter
@@ -15,7 +16,7 @@ def compute_hash(text: str) -> str:
     """Computes SHA256 hash of the given text."""
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
-def build_vector_store(documents: list[Document]) -> FAISS:
+def build_vector_store(documents: List[Document]) -> FAISS:
     """Builds or updates the vector store from the provided documents, skipping duplicates."""
     vector_store = None
     existing_hashes = set()
@@ -27,7 +28,7 @@ def build_vector_store(documents: list[Document]) -> FAISS:
         existing_hashes = {doc.metadata.get("hash") for doc in all_docs if "hash" in doc.metadata}
 
     start_split = time.perf_counter()
-    chunks = splitter.split_documents(documents)
+    chunks = splitter.create_documents([doc.page_content for doc in documents])
     print(f"🧩 Split into {len(chunks)} chunks in {time.perf_counter() - start_split:.2f}s")
 
     start_chunk = time.perf_counter()
