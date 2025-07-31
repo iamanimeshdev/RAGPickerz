@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel, HttpUrl
 from typing import List, Dict
@@ -29,6 +30,7 @@ def verify_token(authorization: str = Header(...)):
 
 @router.post("/run", response_model=Dict[str,List[str]], dependencies=[Depends((verify_token))])
 async def run_qa(request: RunRequest):
+    print(request)
     try:
         all_docs = []
         urls =  [request.documents]
